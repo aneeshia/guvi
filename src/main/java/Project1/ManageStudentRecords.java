@@ -25,7 +25,6 @@ public class ManageStudentRecords {
     private static final Scanner scan = new Scanner(System.in);
 
     public interface StudentInputScanner {
-//        int scanMenuChoice();
         String scanName();
         LocalDate scanDob();
         String scanGrade();
@@ -33,6 +32,7 @@ public class ManageStudentRecords {
         Integer[] scanSubjectMarks(String[] subjects);
 
         String scanSearchTerm();
+        String scanSearchTerm(boolean allowAll);
         int scanChoice(String prompt, int min, int max);
         boolean scanConfirmation(String prompt);
     }
@@ -60,11 +60,6 @@ public class ManageStudentRecords {
                 }
             }
         }
-
-//        @Override
-//        public int scanMenuChoice() {
-//            return scanChoice("Choose an option", 1, 5);
-//        }
 
         @Override
         public String scanName() {
@@ -121,10 +116,21 @@ public class ManageStudentRecords {
             }
             return scores;
         }
+
         @Override
         public String scanSearchTerm() {
+            return scanSearchTerm(false);
+        }
+
+        @Override
+        public String scanSearchTerm(boolean allowAll) {
             while (true) {
-                System.out.print("Enter student name or ID \n(or type 'all' to view all students): ");
+                String prompt = "Enter student name or ID";
+
+                if (allowAll) {
+                    prompt += "\n(or type 'all' to view all students)";
+                }
+                System.out.print(prompt + ": ");
                 String value = scanner.nextLine().trim();
 
                 if (!value.isEmpty()) {
@@ -560,7 +566,7 @@ public class ManageStudentRecords {
         // prompt student id, name => show.
         // in future may be show all - first 10 and load more or cancel or search - complicated.
         System.out.println("4. View Student ========");
-        String search = inputScanner.scanSearchTerm();
+        String search = inputScanner.scanSearchTerm(true);
 
         if (search.equalsIgnoreCase("all")) {
             viewAllStudents();
