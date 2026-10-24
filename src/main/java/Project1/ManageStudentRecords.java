@@ -9,9 +9,11 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeParseException;
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 // Question: Build a console-based application to manage student records with features like
@@ -23,7 +25,7 @@ public class ManageStudentRecords {
     private static final Scanner scan = new Scanner(System.in);
 
     public interface StudentInputScanner {
-        int scanMenuChoice();
+//        int scanMenuChoice();
         String scanName();
         LocalDate scanDob();
         String scanGrade();
@@ -37,7 +39,6 @@ public class ManageStudentRecords {
 
     public static class ConsoleStudentInputScanner implements StudentInputScanner {
         private final Scanner scanner;
-        //private final Scanner scanner = new Scanner(System.in);
         public ConsoleStudentInputScanner(Scanner scan) {
             this.scanner = scan;
         }
@@ -60,23 +61,13 @@ public class ManageStudentRecords {
             }
         }
 
-        @Override
-        public int scanMenuChoice() {
-            return scanChoice("Choose an option", 1, 5);
-        }
+//        @Override
+//        public int scanMenuChoice() {
+//            return scanChoice("Choose an option", 1, 5);
+//        }
 
         @Override
         public String scanName() {
-//            while (true) {
-//                System.out.print("Name: ");
-//                String name = scanner.nextLine().trim();
-//
-//                // Handle empty name
-//                if(!name.isEmpty()) {
-//                    return name;
-//                }
-//                System.out.println("Name can't be empty. Please try again.");
-//            }
             return readNonEmptyInput("Name: ");
         }
 
@@ -101,15 +92,11 @@ public class ManageStudentRecords {
 
         @Override
         public String scanGrade() {
-//            System.out.print("Grade: ");
-//            return scanner.nextLine().trim();
             return readNonEmptyInput("Grade: ");
         }
 
         @Override
         public String scanSection() {
-//            System.out.print("Section: ");
-//            return scanner.nextLine().trim();
             return readNonEmptyInput("Section: ");
         }
 
@@ -153,11 +140,6 @@ public class ManageStudentRecords {
             while (true) {
                 System.out.print(prompt + ": ");
 
-                // if (!scanner.hasNextLine()) {
-                //     System.out.println("\nNo console input available. Exiting.");
-                //     System.exit(0);
-                // }
-
                 try {
                     int choice = Integer.parseInt(
                             scanner.nextLine().trim()
@@ -184,7 +166,7 @@ public class ManageStudentRecords {
                 System.out.print(prompt);
                 String answer = scanner.nextLine()
                         .trim()
-                        .toLowerCase();//
+                        .toLowerCase();
 
                 if (answer.equals("y") || answer.equals("yes")) {
                     return true;
@@ -206,8 +188,7 @@ public class ManageStudentRecords {
     static List<Student> students = new ArrayList<> ();
 
     static public void InitializeStudentsData() {
-        // read from file to buffer
-        // static method which reads from file and init arraylist with student info.
+        // Load existing student records from the file.
         try {
             students = loadFromCsvFile(FILE_PATH);
             if (!(students instanceof ArrayList)) {
@@ -225,7 +206,7 @@ public class ManageStudentRecords {
         // add, update, delete, and view.
         // Focuses on core Java, OOP, collections, and file handling
 
-        // create a arraylist of student type and assigning from file buffer somehow
+        // create an arraylist of student type and assigning from file buffer somehow
         InitializeStudentsData();
 
         int userChoice;
@@ -242,17 +223,6 @@ public class ManageStudentRecords {
                     "Choose an option", 1, 5
             );
             checkUserChoice(userChoice);
-            /*
-            System.out.print("Choose an option:_");
-            try {
-                userChoice = scan.nextInt();
-                checkUserChoice(userChoice);
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number.");
-                scan.nextLine(); // Consume the invalid line
-                userChoice = 0;
-            }
-            */
         } while (userChoice != 5);
 
     }
@@ -321,7 +291,7 @@ public class ManageStudentRecords {
 
                     // Extract  "85;90;78;92;88"
                     String[] scoreTokens = fields[5].split(";", -1);
-                    // Handle invlid csv
+                    // Check required fields and marks
                     if (id.isEmpty() || name.isEmpty() || grade.isEmpty() || section.isEmpty()
                             || scoreTokens.length != SUBJECTS.length
                             || dob.isAfter(LocalDate.now())) {
@@ -355,9 +325,7 @@ public class ManageStudentRecords {
             System.err.println("Error reading csv file: " + e.getMessage());
             return studentsFromCSV;
         }
-//        System.out.println("\nCSV Loading Summary");
-//        System.out.println("Successfully loaded: " + loadedCount);
-//        System.out.println("Skipped invalid records: " + skippedCount + "\n\n");
+
         System.out.printf("CSV Student records loaded: %d, skipped: %d%n%n",
                 loadedCount, skippedCount);
 
@@ -374,9 +342,9 @@ public class ManageStudentRecords {
                         .collect(Collectors.joining(";"));
 
                 String csvLine = String.join(",",
-                        student.getId().toString(),
+                        student.getId(),
                         student.getName(),
-                        student.getDob().toString(), // LocalDate yyyy-MM-dd
+                        student.getDob().toString(), // Save date as yyyy-MM-dd
                         student.getGrade(),
                         student.getSection(),
                         scoreStr
@@ -391,30 +359,6 @@ public class ManageStudentRecords {
 
     public static void addStudent() {
         // prompt student name, dob, class, section, marks(optional)
-        /*
-        Scanner scan = new Scanner(System.in);
-        System.out.println("1 Add Student");
-
-
-        System.out.print("\nName: ");
-        String name  = scan.nextLine();
-        System.out.print("\nD.O.B: ");
-        LocalDate dob  = LocalDate.parse(scan.nextLine());
-        System.out.print("\nGrade: ");
-        String grade  = scan.nextLine();
-        System.out.print("\nSection: ");
-        String section  = scan.nextLine();
-        System.out.print("\scores: ");
-
-
-        Integer[] scores  = Integer.valueOf(scan.nextLine());// need multiple
-        String id = String.valueOf(UUID.randomUUID());
-        Student newStudent = new Student(id, name, dob, grade, section, score);
-
-
-        students.add(newStudent);
-        //update file
-        */
 
         System.out.println("1. Add Student ========");
         String name = inputScanner.scanName();
@@ -431,8 +375,6 @@ public class ManageStudentRecords {
         saveToFile(students);
     }
     private static Student selectStudent(String search) {
-//        String search = inputScanner.scanSearchTerm();
-
         List<Student> matches = students.stream()
                 .filter(s ->
                         s.getName().toLowerCase().contains(search.toLowerCase()) ||
@@ -488,6 +430,43 @@ public class ManageStudentRecords {
                     student.getGrade(),
                     student.getSection()
             );
+        }
+    }
+    private static void viewAllStudents() {
+        if (students.isEmpty()) {
+            System.out.println("No student records available.");
+            return;
+        }
+        int pageSize = 10;
+        int currentIndex = 0;
+
+        while (currentIndex < students.size()) {
+            int endIndex = Math.min(currentIndex + pageSize, students.size());
+
+            List<Student> page = students.subList(currentIndex, endIndex);
+
+            System.out.println("\n--- Student Records ("
+                    + (currentIndex + 1) + "-" + endIndex
+                    + " of " + students.size() + ") ---");
+
+            printStudentTable(page);
+
+            currentIndex = endIndex;
+
+            // No more records to display
+            if (currentIndex >= students.size()) {
+                System.out.println("End of student records.\n");
+                return;
+            }
+
+            System.out.println("\n1. Load next 10 students");
+            System.out.println("2. Return to main menu");
+
+            int choice = inputScanner.scanChoice("Choose an option", 1, 2);
+
+            if (choice == 2) {
+                return;
+            }
         }
     }
 
@@ -584,42 +563,7 @@ public class ManageStudentRecords {
         String search = inputScanner.scanSearchTerm();
 
         if (search.equalsIgnoreCase("all")) {
-            if (students.isEmpty()) {
-                System.out.println("No student records available.");
-                return;
-            }
-            int pageSize = 10;
-            int currentIndex = 0;
-
-            while (currentIndex < students.size()) {
-                int endIndex = Math.min(currentIndex + pageSize, students.size());
-
-                List<Student> page = students.subList(currentIndex, endIndex);
-
-                System.out.println("\n--- Student Records ("
-                        + (currentIndex + 1) + "-" + endIndex
-                        + " of " + students.size() + ") ---");
-
-                printStudentTable(page);
-
-                currentIndex = endIndex;
-
-                // No more records to display
-                if (currentIndex >= students.size()) {
-                    System.out.println("End of student records.\n");
-                    return;
-                }
-
-                System.out.println("\n1. Load next 10 students");
-                System.out.println("2. Return to main menu");
-
-                int choice = inputScanner.scanChoice("Choose an option", 1, 2);
-
-                if (choice == 2) {
-                    return;
-                }
-            }
-
+            viewAllStudents();
             return;
         }
 
@@ -649,11 +593,6 @@ public class ManageStudentRecords {
 
 }
 
-// studentID, name, age, grade, section,
-
-// Marks
-// student ID, Eng Mark, Math, Bio, Chem, Phy
-
 class Student {
     // props ID, name, class, age, section, marks
     // but marks can be subject wise for a class or a section with student ID
@@ -676,7 +615,7 @@ class Student {
     }
 
     int getAge() {
-        // calculate from  dob and return;
+        // Calculate age from date of birth.
         LocalDate today = LocalDate.now();
         Period age = Period.between(dob, today);
         return age.getYears();
@@ -726,14 +665,3 @@ class Student {
         this.scores = scores;
     }
 }
-
-class Marks {
-    private String subjectID;
-    private String subjectName;
-    private String marks;
-    // or should it be mark1, mark2
-    // or hashmap of subject id , mark
-}
-// another list of
-// subject id => subject name, max mark
-
