@@ -137,7 +137,7 @@ public class ManageStudentRecords {
         @Override
         public String scanSearchTerm() {
             while (true) {
-                System.out.print("Enter student name or ID: ");
+                System.out.print("Enter student name or ID \n(or type 'all' to view all students): ");
                 String value = scanner.nextLine().trim();
 
                 if (!value.isEmpty()) {
@@ -430,8 +430,8 @@ public class ManageStudentRecords {
         System.out.println("Student added successfully with ID: " + id + "\n --------- \n\n");
         saveToFile(students);
     }
-    private static Student selectStudent() {
-        String search = inputScanner.scanSearchTerm();
+    private static Student selectStudent(String search) {
+//        String search = inputScanner.scanSearchTerm();
 
         List<Student> matches = students.stream()
                 .filter(s ->
@@ -471,12 +471,31 @@ public class ManageStudentRecords {
 
         return matches.get(choice - 1);
     }
+    private static void printStudentTable(List<Student> records) {
+        System.out.printf(
+                "%-36s %-18s %-12s %-7s %-8s%n",
+                "ID", "Name", "DOB", "Grade", "Section"
+        );
+
+        System.out.println("-".repeat(85));
+
+        for (Student student : records) {
+            System.out.printf(
+                    "%-36s %-18s %-12s %-7s %-8s%n",
+                    student.getId(),
+                    student.getName(),
+                    student.getDob(),
+                    student.getGrade(),
+                    student.getSection()
+            );
+        }
+    }
 
     public static void updateStudent() {
         // prompt search student with id name,then which property to update
         System.out.println("2. Update Student ========");
 
-        Student student = selectStudent();
+        Student student = selectStudent(inputScanner.scanSearchTerm());
 
         if (student == null) {
             return;
@@ -535,7 +554,7 @@ public class ManageStudentRecords {
         // prompt student id
         System.out.println("3. Delete Student ========");
 
-        Student student = selectStudent();
+        Student student = selectStudent(inputScanner.scanSearchTerm());
 
         if (student == null) {
             return;
@@ -562,8 +581,49 @@ public class ManageStudentRecords {
         // prompt student id, name => show.
         // in future may be show all - first 10 and load more or cancel or search - complicated.
         System.out.println("4. View Student ========");
+        String search = inputScanner.scanSearchTerm();
 
-        Student student = selectStudent();
+        if (search.equalsIgnoreCase("all")) {
+            if (students.isEmpty()) {
+                System.out.println("No student records available.");
+                return;
+            }
+            int pageSize = 10;
+            int currentIndex = 0;
+
+            while (currentIndex < students.size()) {
+                int endIndex = Math.min(currentIndex + pageSize, students.size());
+
+                List<Student> page = students.subList(currentIndex, endIndex);
+
+                System.out.println("\n--- Student Records ("
+                        + (currentIndex + 1) + "-" + endIndex
+                        + " of " + students.size() + ") ---");
+
+                printStudentTable(page);
+
+                currentIndex = endIndex;
+
+                // No more records to display
+                if (currentIndex >= students.size()) {
+                    System.out.println("End of student records.\n");
+                    return;
+                }
+
+                System.out.println("\n1. Load next 10 students");
+                System.out.println("2. Return to main menu");
+
+                int choice = inputScanner.scanChoice("Choose an option", 1, 2);
+
+                if (choice == 2) {
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        Student student = selectStudent(search);
 
         if (student == null) {
             return;
