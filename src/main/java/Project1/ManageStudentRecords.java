@@ -42,6 +42,24 @@ public class ManageStudentRecords {
             this.scanner = scan;
         }
 
+        private String readNonEmptyInput(String prompt) {
+            while(true) {
+                System.out.println(prompt);
+                String input = scanner.nextLine().trim();
+
+                // Handle empty string input
+                if(input.isEmpty()) {
+                    System.out.println("Input can't be empty.");
+                }
+                // Handle comma  (for now to avoid having issues in csv)
+                else if(input.contains(",")) {
+                    System.out.println("Commas are not allowed.");
+                } else {
+                    return input;
+                }
+            }
+        }
+
         @Override
         public int scanMenuChoice() {
             return scanChoice("Choose an option", 1, 5);
@@ -49,17 +67,17 @@ public class ManageStudentRecords {
 
         @Override
         public String scanName() {
-            while (true) {
-                System.out.print("Name: ");
-                String name = scanner.nextLine().trim();
-
-                // Handle empty name
-                if(!name.isEmpty()) {
-                    return name;
-                }
-                System.out.println("Name can't be empty. Please try again.");
-            }
-
+//            while (true) {
+//                System.out.print("Name: ");
+//                String name = scanner.nextLine().trim();
+//
+//                // Handle empty name
+//                if(!name.isEmpty()) {
+//                    return name;
+//                }
+//                System.out.println("Name can't be empty. Please try again.");
+//            }
+            return readNonEmptyInput("Name: ");
         }
 
         @Override
@@ -83,14 +101,16 @@ public class ManageStudentRecords {
 
         @Override
         public String scanGrade() {
-            System.out.print("Grade: ");
-            return scanner.nextLine().trim();
+//            System.out.print("Grade: ");
+//            return scanner.nextLine().trim();
+            return readNonEmptyInput("Grade: ");
         }
 
         @Override
         public String scanSection() {
-            System.out.print("Section: ");
-            return scanner.nextLine().trim();
+//            System.out.print("Section: ");
+//            return scanner.nextLine().trim();
+            return readNonEmptyInput("Section: ");
         }
 
         @Override
