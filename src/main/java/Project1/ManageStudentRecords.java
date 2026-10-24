@@ -278,7 +278,7 @@ public class ManageStudentRecords {
                 System.out.println("Exiting program");
                 return;
             default:
-                System.out.println("Incorrect input. Please try again.\n\n");
+                System.out.println("Incorrect input. Please try again.\n");
         }
     }
     public static List < Student > loadFromCsvFile(String filePath) {
@@ -286,38 +286,80 @@ public class ManageStudentRecords {
 
         File file = new File(filePath);
         if (!file.exists()) {
-            System.out.println("No existing records. Starting fresh.");
+            System.out.println("No existing records. Starting fresh.\n");
             return studentsFromCSV;
         }
+        int lineNumber = 0;
+        int loadedCount = 0;
+        int skippedCount = 0;
 
         try (BufferedReader bufReader = new BufferedReader(new FileReader(file))) {
             String currentLine;
+
             while ((currentLine = bufReader.readLine()) != null) {
+                lineNumber++;
                 currentLine = currentLine.trim();
                 if (currentLine.isEmpty()) {
                     continue;
                 }
 
-                String[] fields = currentLine.split(","); // csv
+                try {
+                    String[] fields = currentLine.split(",", -1); // csv
 
-                String id = fields[0];
-                String name = fields[1];
-                LocalDate dob = LocalDate.parse(fields[2]);
-                String grade = fields[3];
-                String section = fields[4];
+                    // Expect 6 fields: id, name, dob, grade, section, scores
+                    if (fields.length != 6) {
+                        System.out.println("Skipping invalid CSV record."+ lineNumber);
+                        skippedCount++;
+                        continue;
+                    }
 
-                // Extract  "85;90;78;92;88"
-                String[] scoreTokens = fields[5].split(";");
-                Integer[] scores = new Integer[scoreTokens.length];
+                    String id = fields[0].trim();
+                    String name = fields[1].trim();
+                    LocalDate dob = LocalDate.parse(fields[2].trim());
+                    String grade = fields[3].trim();
+                    String section = fields[4].trim();
 
-                for (int i = 0; i < scoreTokens.length; i++) {
-                    scores[i] = Integer.parseInt(scoreTokens[i].trim());
+                    // Extract  "85;90;78;92;88"
+                    String[] scoreTokens = fields[5].split(";", -1);
+                    // Handle invlid csv
+                    if (id.isEmpty() || name.isEmpty() || grade.isEmpty() || section.isEmpty()
+                            || scoreTokens.length != SUBJECTS.length
+                            || dob.isAfter(LocalDate.now())) {
+                        System.out.println("Skipping invalid student record: " + id);
+                        skippedCount++;
+                        continue;
+                    }
+
+                    Integer[] scores = new Integer[scoreTokens.length];
+
+                    for (int i = 0; i < scoreTokens.length; i++) {
+                        scores[i] = Integer.parseInt(scoreTokens[i].trim());
+
+                        if (scores[i] < 0 || scores[i] > 100) {
+                            throw new IllegalArgumentException("Invalid mark");
+                        }
+                    }
+                    studentsFromCSV.add(new Student(id, name, dob, grade, section, scores));
+                    loadedCount++;
+
+                } catch (RuntimeException  e) {
+//                    System.err.println("Skipping invalid csv record: " + e.getMessage());
+                    skippedCount++;
+                    System.err.println(
+                            "Skipping invalid CSV record at line " + lineNumber
+                                    + ": " + e.getMessage()
+                    );
                 }
-                studentsFromCSV.add(new Student(id, name, dob, grade, section, scores));
             }
         } catch (IOException e) {
             System.err.println("Error reading csv file: " + e.getMessage());
+            return studentsFromCSV;
         }
+//        System.out.println("\nCSV Loading Summary");
+//        System.out.println("Successfully loaded: " + loadedCount);
+//        System.out.println("Skipped invalid records: " + skippedCount + "\n\n");
+        System.out.printf("CSV Student records loaded: %d, skipped: %d%n%n",
+                loadedCount, skippedCount);
 
         return studentsFromCSV;
     }
@@ -588,7 +630,7 @@ class Student {
         return this.name;
     }
 
-    public Object getDob() {
+    public LocalDate getDob() {
         return this.dob;
     }
 
