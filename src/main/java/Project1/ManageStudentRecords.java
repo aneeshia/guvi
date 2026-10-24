@@ -49,8 +49,17 @@ public class ManageStudentRecords {
 
         @Override
         public String scanName() {
-            System.out.print("Name: ");
-            return scanner.nextLine().trim();
+            while (true) {
+                System.out.print("Name: ");
+                String name = scanner.nextLine().trim();
+
+                // Handle empty name
+                if(!name.isEmpty()) {
+                    return name;
+                }
+                System.out.println("Name can't be empty. Please try again.");
+            }
+
         }
 
         @Override
@@ -58,7 +67,14 @@ public class ManageStudentRecords {
             while (true) {
                 System.out.print("D.O.B (yyyy-MM-dd): ");
                 try {
-                    return LocalDate.parse(scanner.nextLine().trim());
+                    LocalDate dob = LocalDate.parse(scanner.nextLine().trim());
+
+                    // Handle future D.O.B
+                    if(dob.isAfter(LocalDate.now())) {
+                        System.out.println("Date of birth cannot be in the future.");
+                        continue;
+                    }
+                    return dob;
                 } catch (DateTimeParseException e) {
                     System.out.println("Invalid format! Please use yyyy-MM-dd.");
                 }
