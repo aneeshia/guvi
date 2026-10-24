@@ -435,7 +435,7 @@ public class ManageStudentRecords {
 
         List<Student> matches = students.stream()
                 .filter(s ->
-                        s.getName().equalsIgnoreCase(search) ||
+                        s.getName().toLowerCase().contains(search.toLowerCase()) ||
                                 s.getId().equalsIgnoreCase(search))
                 .toList();
 
